@@ -9,6 +9,12 @@ export default function InstallPWA() {
   const [showInstallButton, setShowInstallButton] = useState(false);
 
   useEffect(() => {
+    // Check if the app is already installed
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      console.log("App is already installed");
+      return;
+    }
+
     const handler = (e: Event) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
@@ -19,6 +25,16 @@ export default function InstallPWA() {
     };
 
     window.addEventListener("beforeinstallprompt", handler);
+
+    // Check if the app is installable
+    if ("getInstalledRelatedApps" in navigator) {
+      // @ts-ignore
+      navigator.getInstalledRelatedApps().then((relatedApps: any[]) => {
+        if (relatedApps.length === 0) {
+          setShowInstallButton(true);
+        }
+      });
+    }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
@@ -57,6 +73,7 @@ export default function InstallPWA() {
         bottom: "80px",
         right: "20px",
         zIndex: 1000,
+        boxShadow: 3,
       }}>
       Install Aplikasi
     </Button>

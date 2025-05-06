@@ -1,12 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@mui/material";
-import { Download } from "@mui/icons-material";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { DownloadIcon } from "lucide-react";
 
-export default function InstallPWA() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+export default function InstallPWA({
+  children,
+}: {
+  children: (props: { install: () => void }) => React.ReactNode;
+}) {
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
     // Check if the app is already installed
@@ -18,10 +28,8 @@ export default function InstallPWA() {
     const handler = (e: Event) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
-      // Stash the event so it can be triggered later
-      setDeferredPrompt(e);
-      // Update UI to notify the user they can add to home screen
-      setShowInstallButton(true);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setIsInstallable(true);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -31,7 +39,7 @@ export default function InstallPWA() {
       // @ts-ignore
       navigator.getInstalledRelatedApps().then((relatedApps: any[]) => {
         if (relatedApps.length === 0) {
-          setShowInstallButton(true);
+          setIsInstallable(true);
         }
       });
     }
@@ -41,41 +49,18 @@ export default function InstallPWA() {
     };
   }, []);
 
-  const handleInstallClick = async () => {
+  const install = async () => {
     if (!deferredPrompt) return;
 
-    // Show the install prompt
     deferredPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
 
-    // We've used the prompt, and can't use it again, throw it away
-    setDeferredPrompt(null);
-
-    // Hide the install button
-    setShowInstallButton(false);
-
-    // Optionally, send analytics event with outcome
-    console.log(`User response to the install prompt: ${outcome}`);
+    if (outcome === "accepted") {
+      setIsInstallable(false);
+    }
   };
 
-  if (!showInstallButton) return null;
+  if (!isInstallable) return null;
 
-  return (
-    <Button
-      variant="contained"
-      color="primary"
-      startIcon={<Download />}
-      onClick={handleInstallClick}
-      sx={{
-        position: "fixed",
-        bottom: "80px",
-        right: "20px",
-        zIndex: 1000,
-        boxShadow: 3,
-      }}>
-      Install Aplikasi
-    </Button>
-  );
+  return <>{children({ install })}</>;
 }

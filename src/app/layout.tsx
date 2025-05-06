@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import InstallPWA from "./components/InstallPWA";
@@ -9,21 +9,22 @@ export const metadata: Metadata = {
   title: "KasirBro - Aplikasi Kasir Modern",
   description: "Aplikasi kasir modern dengan fitur lengkap untuk bisnis Anda",
   manifest: "/manifest.json",
-  themeColor: "#ffffff",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "KasirBro",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
   icons: {
     icon: "/icon-192x192.png",
     apple: "/icon-192x192.png",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({

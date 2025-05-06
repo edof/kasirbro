@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@mui/material";
-import { Download } from "@mui/icons-material";
 
 export default function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -63,19 +61,23 @@ export default function InstallPWA() {
   if (!showInstallButton) return null;
 
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      startIcon={<Download />}
-      onClick={handleInstallClick}
-      sx={{
-        position: "fixed",
-        bottom: "80px",
-        right: "20px",
-        zIndex: 1000,
-        boxShadow: 3,
-      }}>
+    <button
+      className="btn btn-primary fixed bottom-20 right-5 z-50 shadow-lg"
+      onClick={handleInstallClick}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5 mr-2"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+        />
+      </svg>
       Install Aplikasi
-    </Button>
+    </button>
   );
 }

@@ -136,7 +136,7 @@ export function EditProductModal({
           </div>
           <div className="space-y-4">
             <Label>Ukuran dan Stok</Label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {editedProduct.variants.map((variant, index) => (
                 <div key={variant.size} className="flex gap-2">
                   <Input value={variant.size} disabled className="w-24" />

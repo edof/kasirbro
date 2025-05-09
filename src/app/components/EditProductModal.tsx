@@ -48,7 +48,7 @@ export function EditProductModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col w-[95%] mx-auto">
         <DialogHeader>
           <DialogTitle>Edit Produk</DialogTitle>
         </DialogHeader>

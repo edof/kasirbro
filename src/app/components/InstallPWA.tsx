@@ -19,48 +19,89 @@ export default function InstallPWA({
   const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
-    // Check if the app is already installed
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      console.log("App is already installed");
-      return;
-    }
-
+    // Handler for beforeinstallprompt event
     const handler = (e: Event) => {
-      // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
+      console.log("beforeinstallprompt event fired");
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
     };
 
-    window.addEventListener("beforeinstallprompt", handler);
+    // Check installation status
+    const checkInstalledStatus = () => {
+      // Method 1: Check display mode
+      const isStandalone = window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches;
 
-    // Check if the app is installable
-    if ("getInstalledRelatedApps" in navigator) {
-      // @ts-ignore
-      navigator.getInstalledRelatedApps().then((relatedApps: any[]) => {
-        if (relatedApps.length === 0) {
-          setIsInstallable(true);
-        }
-      });
-    }
+      // Method 2: Check installed apps (if supported)
+      let isInstalled = false;
+      if ("getInstalledRelatedApps" in navigator) {
+        // @ts-ignore
+        navigator.getInstalledRelatedApps().then((apps) => {
+          isInstalled = apps.length > 0;
+          console.log("Installed apps:", apps);
+        });
+      }
+
+      // Method 3: Check localStorage flag (custom implementation)
+      const wasInstalled = localStorage.getItem("pwaInstalled") === "true";
+
+      // Update installability state
+      setIsInstallable(!isStandalone && !wasInstalled);
+    };
+
+    // Add event listeners
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => {
+      localStorage.setItem("pwaInstalled", "true");
+      setIsInstallable(false);
+    });
+
+    // Initial check
+    checkInstalledStatus();
+
+    // Periodic checks (every 5 seconds)
+    const interval = setInterval(checkInstalledStatus, 5000);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
+      clearInterval(interval);
     };
   }, []);
 
   const install = async () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      console.error("No install prompt available");
+      return;
+    }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === "accepted") {
-      setIsInstallable(false);
+      if (outcome === "accepted") {
+        console.log("User accepted install");
+        localStorage.setItem("pwaInstalled", "true");
+        setIsInstallable(false);
+      } else {
+        console.log("User dismissed install");
+      }
+    } catch (error) {
+      console.error("Error during install:", error);
     }
   };
 
-  if (!isInstallable) return null;
+  // Debug info (can be removed in production)
+  // useEffect(() => {
+  //   console.log('Installability state:', {
+  //     isInstallable,
+  //     deferredPrompt: !!deferredPrompt,
+  //     displayMode: window.matchMedia('(display-mode: standalone)').matches
+  //   });
+  // }, [isInstallable, deferredPrompt]);
+
+  // if (!isInstallable) return null;
 
   return <>{children({ install })}</>;
 }

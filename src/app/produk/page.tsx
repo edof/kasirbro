@@ -56,16 +56,16 @@ export default function ProdukPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Produk</h1>
-      <div className="flex items-center justify-between">
-        <div className="relative">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             placeholder="Cari produk..."
-            className="pl-9 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+            className="w-full pl-9 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
           />
         </div>
-        <Button>
+        <Button className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Tambah Produk
         </Button>
